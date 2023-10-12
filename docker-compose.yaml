@@ -1,0 +1,27 @@
+version: '3.8'
+
+volumes:
+  mysql_data:
+    driver: local
+
+services:
+
+  idp-db:
+    image: mysql:8.1.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+    env_file:
+      - idp/db/.env
+    restart: unless-stopped
+    ports:
+      - ${IDP_DB_HOST_PORT}:${IDP_DB_CONTAINER_PORT}
+
+  idp:
+    image: quay.io/keycloak/keycloak:legacy
+    env_file:
+      - idp/kc/.env
+    restart: unless-stopped
+    depends_on:
+      - idp-db
+    ports:
+      - ${IDP_HOST_PORT}:${IDP_CONTAINER_PORT}
